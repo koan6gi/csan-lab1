@@ -23,7 +23,5 @@ func main() {
 	}
 	ShowMyInterfaceInfo(ipnet.IP.To4().String(), iface.HardwareAddr.String())
 	ports, _ := GetAvailablePorts(hosts)
-	for _, port := range ports {
-		fmt.Printf("Port: %d\n", port)
-	}
+	ShowHostsInfo(hosts, ports)
 }

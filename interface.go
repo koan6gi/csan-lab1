@@ -54,5 +54,12 @@ func getActiveInterfaces() ([]net.Interface, error) {
 }
 
 func ShowMyInterfaceInfo(ip, mac string) {
-	fmt.Printf("Your Interface:\nIP: %s\nMAC: %s\n", ip, mac)
+	fmt.Printf("Your Interface:\nIP: %s\nMAC: %s\n\n", ip, mac)
+}
+
+func ShowHostsInfo(hosts []Hosts, ports [][]int) {
+	fmt.Println("Hosts Information:")
+	for k, host := range hosts {
+		fmt.Printf("IP: %s, MAC: %s\nPorts: %d\n\n", host.IP, host.Mac, ports[k])
+	}
 }

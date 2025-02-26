@@ -16,7 +16,7 @@ func GetAvailablePorts(hosts []Hosts) ([][]int, error) {
 		ports[k] = make([]int, 0)
 		for i := 1; i < MAX_PORTS_COUNT; i++ {
 			go func() {
-				conn, err := net.DialTimeout("tcp", host.IP+":"+strconv.Itoa(i), time.Millisecond*2000)
+				conn, err := net.DialTimeout("tcp", host.IP+":"+strconv.Itoa(i), time.Millisecond*2500)
 				if err != nil {
 					return
 				}
