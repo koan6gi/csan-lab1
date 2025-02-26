@@ -31,8 +31,8 @@ func ChooseNetworkInterface() (*net.Interface, error) {
 		fmt.Printf("%d. %s\n", i, iface.Name)
 	}
 	k := 0
-	_, _ = fmt.Scanf("%d", &k)
-	if k >= len(ifaces) || k < 0 {
+	_, err = fmt.Scanf("%d", &k)
+	if k >= len(ifaces) || k < 0 || err != nil {
 		return nil, fmt.Errorf("Invalid network interface\n")
 	}
 
