@@ -1,12 +1,19 @@
 package main
 
 import (
+	"fmt"
 	"net"
 	"os/exec"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 )
+
+type Hosts struct {
+	IP  string
+	Mac string
+}
 
 var wg = sync.WaitGroup{}
 
@@ -45,7 +52,7 @@ func pingIPs(dstIP string, recDep int) {
 		if recDep == 0 {
 			wg.Add(1)
 			go func() {
-				_ = exec.Command("ping", "-n", "2", "-w", "1000", dstIP+"."+strconv.Itoa(i)).Run()
+				_ = exec.Command("ping", "-n", "1", "-4", dstIP+"."+strconv.Itoa(i)).Run()
 				time.Sleep(time.Millisecond * 500)
 				wg.Done()
 			}()
@@ -53,4 +60,45 @@ func pingIPs(dstIP string, recDep int) {
 			pingIPs(dstIP+"."+strconv.Itoa(i), recDep)
 		}
 	}
+}
+
+func ParseARPTable(ip string) ([]Hosts, error) {
+	cmd := exec.Command("arp", "-a")
+	out, err := cmd.Output()
+	if err != nil {
+		return nil, err
+	}
+	lines := strings.Split(string(out), "\n")
+	index := -1
+	for i, line := range lines {
+		if strings.Contains(line, ip) {
+			index = i
+			break
+		}
+	}
+	if index == -1 {
+		return nil, fmt.Errorf("ARP table does not contain IP")
+	}
+	index += 2
+	result := make([]Hosts, 0)
+
+	for i := index; i < len(lines) && strings.TrimSpace(lines[i]) != ""; i++ {
+		data := strings.Split(strings.TrimSpace(lines[i]), " ")
+		iIp, iMac := -1, -1
+		for j := 0; j < len(data); j++ {
+			if data[j] != "" {
+				if iIp == -1 {
+					iIp = j
+				} else {
+					iMac = j
+					break
+				}
+			}
+		}
+		if iIp == -1 || iMac == -1 {
+			return nil, fmt.Errorf("unable to parse ARP table")
+		}
+		result = append(result, Hosts{string(data[iIp]), string(data[iMac])})
+	}
+	return result, nil
 }

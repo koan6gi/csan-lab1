@@ -5,11 +5,8 @@ import (
 	"net"
 )
 
-func GetIPNet() (*net.IPNet, error) {
-	iface, err := chooseNetworkInterface()
-	if err != nil {
-		return nil, err
-	}
+func GetIPNet(iface *net.Interface) (*net.IPNet, error) {
+
 	addrs, err := iface.Addrs()
 	if err != nil {
 		return nil, err
@@ -24,7 +21,7 @@ func GetIPNet() (*net.IPNet, error) {
 	return nil, fmt.Errorf("cant find ipnet\n")
 }
 
-func chooseNetworkInterface() (*net.Interface, error) {
+func ChooseNetworkInterface() (*net.Interface, error) {
 	ifaces, err := getActiveInterfaces()
 	if err != nil {
 		return nil, err

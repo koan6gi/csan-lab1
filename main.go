@@ -5,11 +5,20 @@ import (
 )
 
 func main() {
-	ipnet, err := GetIPNet()
+	iface, err := ChooseNetworkInterface()
+	if err != nil {
+		_ = fmt.Errorf("%e\n", err)
+		return
+	}
+	ipnet, err := GetIPNet(iface)
 	if err != nil {
 		_ = fmt.Errorf("%e\n", err)
 		return
 	}
 	UpdateARPTable(*ipnet)
-	fmt.Println("Check arp")
+	hosts, err := ParseARPTable(ipnet.IP.To4().String())
+	if err != nil {
+		_ = fmt.Errorf("%e\n", err)
+		return
+	}
 }
