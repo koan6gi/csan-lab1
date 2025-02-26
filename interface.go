@@ -52,3 +52,7 @@ func getActiveInterfaces() ([]net.Interface, error) {
 	}
 	return activeInterfaces, nil
 }
+
+func ShowMyInterfaceInfo(ip, mac string) {
+	fmt.Printf("Your Interface:\nIP: %s\nMAC: %s\n", ip, mac)
+}

@@ -21,4 +21,9 @@ func main() {
 		_ = fmt.Errorf("%e\n", err)
 		return
 	}
+	ShowMyInterfaceInfo(ipnet.IP.To4().String(), iface.HardwareAddr.String())
+	ports, _ := GetAvailablePorts(hosts)
+	for _, port := range ports {
+		fmt.Printf("Port: %d\n", port)
+	}
 }
