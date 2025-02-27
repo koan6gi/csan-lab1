@@ -3,19 +3,24 @@ package main
 import (
 	"net"
 	"strconv"
+	"sync"
 	"time"
 )
 
 const (
-	MAX_PORTS_COUNT = 2000
+	MaxPortsCount = 2000
 )
+
+var waitGroupPorts sync.WaitGroup
 
 func GetAvailablePorts(hosts []Hosts) ([][]int, error) {
 	ports := make([][]int, len(hosts))
 	for k, host := range hosts {
 		ports[k] = make([]int, 0)
-		for i := 1; i < MAX_PORTS_COUNT; i++ {
+		for i := 1; i < MaxPortsCount; i++ {
+			waitGroupPorts.Add(1)
 			go func() {
+				defer waitGroupPorts.Done()
 				conn, err := net.DialTimeout("tcp", host.IP+":"+strconv.Itoa(i), time.Millisecond*2500)
 				if err != nil {
 					return
@@ -25,5 +30,6 @@ func GetAvailablePorts(hosts []Hosts) ([][]int, error) {
 			}()
 		}
 	}
+	waitGroupPorts.Wait()
 	return ports, nil
 }
