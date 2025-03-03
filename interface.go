@@ -44,7 +44,7 @@ func getActiveInterfaces() ([]net.Interface, error) {
 	if err != nil {
 		return nil, err
 	}
-	activeInterfaces := make([]net.Interface, 0)
+	activeInterfaces := []net.Interface{}
 	for _, iface := range ifaces {
 		if iface.Flags&net.FlagUp != 0 && iface.Flags&net.FlagLoopback == 0 {
 			activeInterfaces = append(activeInterfaces, iface)
@@ -60,6 +60,6 @@ func ShowMyInterfaceInfo(ip, mac string) {
 func ShowHostsInfo(hosts []Hosts, ports [][]int) {
 	fmt.Println("Hosts Information:")
 	for k, host := range hosts {
-		fmt.Printf("IP: %s, MAC: %s\nPorts: %d\n\n", host.IP, host.Mac, ports[k])
+		fmt.Printf("IP: %s\nMAC: %s\nPorts: %d\n\n", host.IP, host.Mac, ports[k])
 	}
 }

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net"
 	"os/exec"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -15,51 +14,25 @@ type Hosts struct {
 	Mac string
 }
 
-var wg = sync.WaitGroup{}
-
 func UpdateARPTable(ip net.IPNet) {
-	pos := 4
-	for i := 0; i < len(ip.Mask); i++ {
-		if ip.Mask[i] == 0 {
-			pos = i
-			break
-		}
-	}
-	ifaceIP := ip.IP.To4().String()
-	tmp := ifaceIP
-	k := pos
-	pos = 4 - pos
-	for i := 0; i < len(tmp); i++ {
-		if tmp[i] == '.' {
-			k--
-			if k == 0 {
-				k = i
-				break
-			}
-		}
-	}
-	tmp = tmp[:k]
-	pingIPs(tmp, pos)
-	wg.Wait()
-}
+	var wg = sync.WaitGroup{}
+	const threadCount = 10
+	sem := make(chan byte, threadCount)
 
-func pingIPs(dstIP string, recDep int) {
-	recDep--
-	if recDep < 0 {
-		return
+	firstIP, lastIP := getIPRange(ip)
+
+	for i := firstIP; !isIPGrater(i, lastIP); IncIP(i) {
+		sem <- 1
+		wg.Add(1)
+		go func() {
+			Ping(i.String(), ip.IP.To4().String())
+			<-sem
+			wg.Done()
+		}()
+		time.Sleep(10 * time.Millisecond)
 	}
-	for i := 0; i < 256; i++ {
-		if recDep == 0 {
-			wg.Add(1)
-			go func() {
-				_ = exec.Command("ping", "-n", "1", "-4", dstIP+"."+strconv.Itoa(i)).Run()
-				time.Sleep(time.Millisecond * 500)
-				wg.Done()
-			}()
-		} else {
-			pingIPs(dstIP+"."+strconv.Itoa(i), recDep)
-		}
-	}
+	wg.Wait()
+	close(sem)
 }
 
 func ParseARPTable(ip string) ([]Hosts, error) {
