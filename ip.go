@@ -85,9 +85,4 @@ func Ping(dstIP, srcIP string) {
 		log.Fatalf("WriteTo err (%s), %s", dstIP, err)
 	}
 
-	//conn, err := net.DialTimeout("tsp", dstIP+":80", 1*time.Second)
-	//if err != nil {
-	//	return
-	//}
-	//defer conn.Close()
 }
